@@ -1,0 +1,9 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/AvailabilitySites/bin/Debug/net5.0
+/AvailabilitySites/obj
+/AvailabilitySites/wwwroot/lib
+/AvailabilitySites/wwwroot
+/.vs/AvailabilitySites

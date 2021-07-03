@@ -1,0 +1,80 @@
+﻿@model IEnumerable<AvailabilitySites.ViewModels.SiteAvailableViewModel>
+
+@{
+    ViewData["Title"] = "Доступность сайтов";
+}
+
+<h1>Проверка доступности сайтов</h1>
+
+<p>
+    <a asp-action="Create">Добавить новый сайт</a>
+</p>
+
+<head>
+    <meta charset="utf-8">
+    <title>Цвет горизонтальной линии</title>
+    <style>
+        hr{
+            border: none; /* Убираем границу */
+            background-color: grey; /* Цвет линии */
+            color: red; /* Цвет линии для IE6-7 */
+            height: 2px; /* Толщина линии */
+        }
+    </style>
+</head>
+
+<hr>
+
+<p>
+    <a asp-action="Refresh">Обновить таблицу</a>
+</p>
+
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IsAvailable)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Url)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Interval)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @{
+                        string text = item.IsAvailable ? "Доступен" : "Недоступен";
+                        @Html.DisplayFor(modelItem => text)
+                    }
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Url)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Interval)
+                </td>
+                <td>
+                    @Html.ActionLink("Изменить", "Edit", new { id = item.PrimaryKey }) |
+                    @Html.ActionLink("Подробно", "Details", new { id = item.PrimaryKey }) |
+                    @Html.ActionLink("Удалить", "Delete", new { id = item.PrimaryKey })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
