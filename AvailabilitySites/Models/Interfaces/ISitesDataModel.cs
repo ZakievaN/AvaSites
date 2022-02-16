@@ -1,10 +1,9 @@
-﻿using AvailabilitySites.Models;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿using System.Collections.Generic;
+using AvailabilitySites.Data;
 
-namespace AvailabilitySites.Services.Interfaces
+namespace AvailabilitySites.Models.Interfaces
 {
-    public interface ISitesDataModel: INotifyPropertyChanged
+    public interface ISitesDataModel
     {
         IEnumerable<Site> Get();
 

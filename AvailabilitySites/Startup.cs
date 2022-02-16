@@ -1,7 +1,13 @@
+
+using System;
+using AvailabilitySites.Data;
+using AvailabilitySites.Models;
+using AvailabilitySites.Models.Interfaces;
 using AvailabilitySites.Services;
 using AvailabilitySites.Services.Interfaces;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -22,13 +28,15 @@ namespace AvailabilitySites
         {
             services.AddControllersWithViews();
 
-            services.AddSingleton<ISitesDataModel, SitesDataModel>();
-            services.AddSingleton<ICheckAvailabilityInThread, CheckAvailabilityInThread>();
+            services.AddDbContext<AvailabilitySitesDbContext>(options =>
+                options.UseSqlServer(Configuration.GetConnectionString("AvailabilitySitesDb")));
 
+            services.AddScoped<ISitesDataModel, SitesDataModel>();
+            services.AddScoped<ICheckAvailabilityInThread, CheckAvailabilityInThread>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider serviceProvider)
         {
             if (env.IsDevelopment())
             {
@@ -53,6 +61,9 @@ namespace AvailabilitySites
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            var context = serviceProvider.GetRequiredService<AvailabilitySitesDbContext>();
+            DbInitializer.Initialize(context);
         }
     }
 }

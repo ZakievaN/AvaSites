@@ -1,15 +1,16 @@
-﻿using AvailabilitySites.Models;
-using AvailabilitySites.Services.Interfaces;
+﻿using AvailabilitySites.Services.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using AvailabilitySites.Data;
+using AvailabilitySites.Models.Interfaces;
 
 namespace AvailabilitySites.Services
 {
     public class CheckAvailabilityInThread : ICheckAvailabilityInThread
     {
-        private ISitesDataModel _sitesData;
+        private readonly ISitesDataModel _sitesData;
 
         private readonly Dictionary<int, Timer> _timers = new Dictionary<int, Timer>();
 
@@ -27,19 +28,19 @@ namespace AvailabilitySites.Services
 
         private void RunCheck()
         {
-            var _sites = _sitesData.Get();
+            var sites = _sitesData.Get();
 
-            ActualizeThreads(_sites);
+            ActualizeThreads(sites);
 
-            if (_sites.Count() == 0)
+            if (!sites.Any())
             {
                 ThreadsOff();
                 return;
             }
 
-            foreach (var site in _sites)
+            foreach (var site in sites)
             {
-                Timer existTimer = FindTimer(site.PrimaryKey);
+                Timer existTimer = FindTimer(site.Id);
                 if (existTimer != null)
                 {
                     existTimer.Change(0, site.Interval * 1000);
@@ -56,7 +57,7 @@ namespace AvailabilitySites.Services
                     site.Interval * 1000
                 );
 
-                _timers.Add(site.PrimaryKey, timer);
+                _timers.Add(site.Id, timer);
 
             }
         }
@@ -87,7 +88,7 @@ namespace AvailabilitySites.Services
             List<int> ids = new List<int>();
             foreach (var timer in _timers)
             {
-                if (!sites.Any(site => site.PrimaryKey == timer.Key))
+                if (!sites.Any(site => site.Id == timer.Key))
                 {
                     timer.Value.Dispose();
                     ids.Add(timer.Key);

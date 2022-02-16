@@ -1,6 +1,6 @@
-﻿using AvailabilitySites.Models;
-using System;
+﻿using System;
 using System.Net;
+using AvailabilitySites.Data;
 
 namespace AvailabilitySites.Services
 {

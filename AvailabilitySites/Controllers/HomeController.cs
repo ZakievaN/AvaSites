@@ -2,38 +2,25 @@
 using AvailabilitySites.Services.Interfaces;
 using AvailabilitySites.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
+using AvailabilitySites.Data;
+using AvailabilitySites.Models.Interfaces;
 
 namespace AvailabilitySites.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
+        private readonly ISitesDataModel _sitesDataModel;
 
-        private ISitesDataModel _sitesDataModel;
-
-        private ICheckAvailabilityInThread _checkAvailability;
-
-        public HomeController(ILogger<HomeController> logger, ISitesDataModel model, ICheckAvailabilityInThread checkAvailability)
+        public HomeController(ISitesDataModel model)
         {
-            _logger = logger;
             _sitesDataModel = model;
-            _checkAvailability = checkAvailability;
-            _sitesDataModel.PropertyChanged += Chatter_SitesDataModelChanged;
-            _checkAvailability.Check();
         }
 
         public IActionResult Refresh()
         {
             return RedirectToAction("Index");
-        }
-
-        private void Chatter_SitesDataModelChanged(object sender, PropertyChangedEventArgs e)
-        {
-            _checkAvailability.Check();
         }
 
         [HttpGet]
@@ -47,7 +34,7 @@ namespace AvailabilitySites.Controllers
             {
                 sites.Add(new SiteAvailableViewModel()
                 {
-                    PrimaryKey = item.PrimaryKey,
+                    PrimaryKey = item.Id,
                     Name = item.Name,
                     Url = item.Url,
                     Interval = item.Interval,
@@ -64,11 +51,13 @@ namespace AvailabilitySites.Controllers
             Site site = _sitesDataModel.Get(id);
 
             if (site == null)
+            {
                 return NotFound();
+            }
 
             return View(new SiteViewModel()
             {
-                PrimaryKey = site.PrimaryKey,
+                PrimaryKey = site.Id,
                 Name = site.Name,
                 Url = site.Url,
                 Interval = site.Interval
@@ -83,7 +72,13 @@ namespace AvailabilitySites.Controllers
                 return View(model);
             }
 
-            Site site = new(model.PrimaryKey, model.Name, model.Url, model.Interval);
+            Site site = new Site
+            {
+                Id = model.PrimaryKey,
+                Name = model.Name,
+                Url = model.Url,
+                Interval = model.Interval
+            };
 
             _sitesDataModel.Update(site);
 
@@ -103,7 +98,7 @@ namespace AvailabilitySites.Controllers
 
             return View(new SiteViewModel()
             {
-                PrimaryKey = site.PrimaryKey,
+                PrimaryKey = site.Id,
                 Name = site.Name,
                 Url = site.Url,
                 Interval = site.Interval
@@ -113,8 +108,6 @@ namespace AvailabilitySites.Controllers
         [HttpGet]
         public IActionResult Delete(int id)
         {
-            if (id == 0) return BadRequest();
-
             var site = _sitesDataModel.Get(id);
 
             if (site is null)
@@ -124,7 +117,7 @@ namespace AvailabilitySites.Controllers
 
             return View(new SiteViewModel()
             {
-                PrimaryKey = site.PrimaryKey,
+                PrimaryKey = site.Id,
                 Name = site.Name,
                 Url = site.Url,
                 Interval = site.Interval
@@ -147,7 +140,14 @@ namespace AvailabilitySites.Controllers
         [HttpPost]
         public IActionResult Create(SiteViewModel model)
         {
-            _sitesDataModel.Add(new (model.PrimaryKey, model.Name, model.Url, model.Interval));
+            _sitesDataModel.Add(new Site
+            {
+                Id = model.PrimaryKey,
+                Name = model.Name,
+                Url = model.Url,
+                Interval = model.Interval
+            });
+
             return RedirectToAction("Index");
         }
 
